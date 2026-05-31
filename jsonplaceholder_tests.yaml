@@ -1,0 +1,434 @@
+# ============================================================
+# JSONPlaceholder REST API Test Suite
+# Positive CRUD Test Cases
+# ============================================================
+
+- config:
+    testset: "JSONPlaceholder REST API Test Suite"
+    base_url: "https://jsonplaceholder.typicode.com"
+    timeout: 5
+
+# ============================================================
+# POSTS
+# ============================================================
+
+- test:
+    name: "TC01 - GET tat ca posts -> 200 OK"
+    url: "/posts"
+    method: GET
+    expected_status: [200]
+    validators:
+      - compare:
+          jsonpath_mini: "0.id"
+          comparator: "eq"
+          expected: 1
+      - compare:
+          jsonpath_mini: "0.userId"
+          comparator: "eq"
+          expected: 1
+
+
+- test:
+    name: "TC02 - GET post hop le id=1 -> 200 OK"
+    url: "/posts/1"
+    method: GET
+    expected_status: [200]
+    validators:
+      - compare:
+          jsonpath_mini: "id"
+          comparator: "eq"
+          expected: 1
+      - compare:
+          jsonpath_mini: "userId"
+          comparator: "eq"
+          expected: 1
+
+
+- test:
+    name: "TC03 - GET comments cua post id=1 -> 200 OK"
+    url: "/posts/1/comments"
+    method: GET
+    expected_status: [200]
+    validators:
+      - compare:
+          jsonpath_mini: "0.postId"
+          comparator: "eq"
+          expected: 1
+
+
+- test:
+    name: "TC04 - POST tao post moi -> 201 Created"
+    url: "/posts"
+    method: POST
+    headers: {Content-Type: application/json}
+    body: '{"title": "API Testing", "body": "PyRestTest Practice", "userId": 1}'
+    expected_status: [201]
+    validators:
+      - compare:
+          jsonpath_mini: "title"
+          comparator: "eq"
+          expected: "API Testing"
+      - compare:
+          jsonpath_mini: "userId"
+          comparator: "eq"
+          expected: 1
+
+
+- test:
+    name: "TC05 - PUT cap nhat toan bo post id=1 -> 200 OK"
+    url: "/posts/1"
+    method: PUT
+    headers: {Content-Type: application/json}
+    body: '{"id": 1, "title": "Updated Title", "body": "Updated Body", "userId": 1}'
+    expected_status: [200]
+    validators:
+      - compare:
+          jsonpath_mini: "title"
+          comparator: "eq"
+          expected: "Updated Title"
+      - compare:
+          jsonpath_mini: "body"
+          comparator: "eq"
+          expected: "Updated Body"
+      - compare:
+          jsonpath_mini: "userId"
+          comparator: "eq"
+          expected: 1
+
+
+- test:
+    name: "TC06 - PATCH cap nhat title post id=1 -> 200 OK"
+    url: "/posts/1"
+    method: PATCH
+    headers: {Content-Type: application/json}
+    body: '{"title": "Patched Title"}'
+    expected_status: [200]
+    validators:
+      - compare:
+          jsonpath_mini: "title"
+          comparator: "eq"
+          expected: "Patched Title"
+
+- test:
+    name: "TC07 - DELETE post id=1 -> 200 OK"
+    url: "/posts/1"
+    method: DELETE
+    expected_status: [200]
+
+
+# ============================================================
+# COMMENTS
+# ============================================================
+
+- test:
+    name: "TC08 - GET tat ca comments -> 200 OK"
+    url: "/comments"
+    method: GET
+    expected_status: [200]
+    validators:
+      - compare:
+          jsonpath_mini: "0.id"
+          comparator: "eq"
+          expected: 1
+      - compare:
+          jsonpath_mini: "0.postId"
+          comparator: "eq"
+          expected: 1
+
+
+- test:
+    name: "TC09 - GET comments theo postId=1 -> 200 OK"
+    url: "/comments?postId=1"
+    method: GET
+    expected_status: [200]
+    validators:
+      - compare:
+          jsonpath_mini: "0.postId"
+          comparator: "eq"
+          expected: 1
+
+
+# ============================================================
+# USERS
+# ============================================================
+
+- test:
+    name: "TC10 - GET tat ca users -> 200 OK"
+    url: "/users"
+    method: GET
+    expected_status: [200]
+    validators:
+      - compare:
+          jsonpath_mini: "0.id"
+          comparator: "eq"
+          expected: 1
+      - compare:
+          jsonpath_mini: "0.name"
+          comparator: "eq"
+          expected: "Leanne Graham"
+
+
+- test:
+    name: "TC11 - GET user hop le id=1 -> 200 OK"
+    url: "/users/1"
+    method: GET
+    expected_status: [200]
+    validators:
+      - compare:
+          jsonpath_mini: "id"
+          comparator: "eq"
+          expected: 1
+      - compare:
+          jsonpath_mini: "name"
+          comparator: "eq"
+          expected: "Leanne Graham"
+
+
+- test:
+    name: "TC12 - POST tao user moi -> 201 Created"
+    url: "/users"
+    method: POST
+    headers: {Content-Type: application/json}
+    body: '{"name": "Nguyen Van A", "username": "vana", "email": "vana@example.com"}'
+    expected_status: [201]
+    validators:
+      - compare:
+          jsonpath_mini: "name"
+          comparator: "eq"
+          expected: "Nguyen Van A"
+      - compare:
+          jsonpath_mini: "username"
+          comparator: "eq"
+          expected: "vana"
+      - compare:
+          jsonpath_mini: "email"
+          comparator: "eq"
+          expected: "vana@example.com"
+
+
+# ============================================================
+# NEGATIVE + BOUNDARY TESTS
+# TC13 - TC21
+# ============================================================
+
+
+# ============================================================
+# GET - INVALID ID TESTS
+# ============================================================
+
+- test:
+    name: "TC13 - GET post khong ton tai id=9999 -> 404"
+    url: "/posts/9999"
+    method: GET
+    expected_status: [404]
+
+
+- test:
+    name: "TC14 - GET post voi id sai datatype abc -> 400"
+    url: "/posts/abc"
+    method: GET
+    expected_status: [400]
+
+
+# ============================================================
+# POST - INVALID BODY TESTS
+# ============================================================
+
+- test:
+    name: "TC15 - POST tao post voi body rong -> 400"
+    url: "/posts"
+    method: POST
+    headers: {Content-Type: application/json}
+    body: '{}'
+    expected_status: [400]
+
+
+- test:
+    name: "TC16 - POST tao post voi userId sai datatype -> 400"
+    url: "/posts"
+    method: POST
+    headers: {Content-Type: application/json}
+    body: '{"title": "Invalid Data", "body": "Testing invalid datatype", "userId": "abc"}'
+    expected_status: [400]
+
+
+# ============================================================
+# PUT - INVALID UPDATE TESTS
+# ============================================================
+
+- test:
+    name: "TC17 - PUT cap nhat post khong ton tai id=9999 -> 404"
+    url: "/posts/9999"
+    method: PUT
+    headers: {Content-Type: application/json}
+    body: '{"id": 9999, "title": "Updated Title", "body": "Updated Body", "userId": 1}'
+    expected_status: [404]
+
+
+- test:
+    name: "TC18 - PUT cap nhat post voi id sai datatype abc -> 400"
+    url: "/posts/abc"
+    method: PUT
+    headers: {Content-Type: application/json}
+    body: '{"id": "abc", "title": "Invalid ID", "body": "Testing invalid id", "userId": 1}'
+    expected_status: [400]
+
+
+# ============================================================
+# PATCH - INVALID UPDATE TESTS
+# ============================================================
+
+- test:
+    name: "TC19 - PATCH post khong ton tai id=9999 -> 404"
+    url: "/posts/9999"
+    method: PATCH
+    headers: {Content-Type: application/json}
+    body: '{"title": "Patched Title"}'
+    expected_status: [404]
+
+- test:
+    name: "TC20 - PATCH post voi id sai datatype abc -> 400"
+    url: "/posts/abc"
+    method: PATCH
+    headers: {Content-Type: application/json}
+    body: '{"title": "Invalid Patch"}'
+    expected_status: [400]
+
+
+# ============================================================
+# DELETE - INVALID DELETE TEST
+# ============================================================
+
+- test:
+    name: "TC21 - DELETE post khong ton tai id=9999 -> 404"
+    url: "/posts/9999"
+    method: DELETE
+    expected_status: [404]
+
+# ============================================================
+# CONSISTENCY + RELATIONSHIP TESTS
+# TC22 - TC26
+# ============================================================
+
+
+# ============================================================
+# QUERY PARAM CONSISTENCY TESTS
+# ============================================================
+
+- test:
+    name: "TC22 - GET posts theo userId=1 -> 200"
+    url: "/posts?userId=1"
+    method: GET
+    expected_status: [200]
+    validators:
+      - compare:
+          jsonpath_mini: "0.userId"
+          comparator: "eq"
+          expected: 1
+
+
+- test:
+    name: "TC23 - GET todos theo userId=1 -> 200"
+    url: "/todos?userId=1"
+    method: GET
+    expected_status: [200]
+    validators:
+      - compare:
+          jsonpath_mini: "0.userId"
+          comparator: "eq"
+          expected: 1
+
+
+- test:
+    name: "TC24 - GET photos theo albumId=1 -> 200"
+    url: "/photos?albumId=1"
+    method: GET
+    expected_status: [200]
+    validators:
+      - compare:
+          jsonpath_mini: "0.albumId"
+          comparator: "eq"
+          expected: 1
+
+
+# ============================================================
+# NESTED RESOURCE TESTS
+# ============================================================
+
+- test:
+    name: "TC25 - GET posts cua user id=1 -> 200"
+    url: "/users/1/posts"
+    method: GET
+    expected_status: [200]
+    validators:
+      - compare:
+          jsonpath_mini: "0.userId"
+          comparator: "eq"
+          expected: 1
+
+
+- test:
+    name: "TC26 - GET photos cua album id=1 -> 200"
+    url: "/albums/1/photos"
+    method: GET
+    expected_status: [200]
+    validators:
+      - compare:
+          jsonpath_mini: "0.albumId"
+          comparator: "eq"
+          expected: 1
+
+# ============================================================
+# FAKE API BEHAVIOR ANALYSIS
+# TC27 - TC30
+# ============================================================
+
+
+# ============================================================
+# DELETE ALWAYS RETURNS SUCCESS
+# ============================================================
+
+- test:
+    name: "TC27 - DELETE post voi id sai datatype abc -> 400"
+    url: "/posts/abc"
+    method: DELETE
+    expected_status: [400]
+
+
+# ============================================================
+# EMPTY BODY STILL ACCEPTED
+# ============================================================
+
+- test:
+    name: "TC28 - POST tao user voi body rong -> 400"
+    url: "/users"
+    method: POST
+    headers: {Content-Type: application/json}
+    body: '{}'
+    expected_status: [400]
+
+
+# ============================================================
+# SERVER ERROR ON INVALID PUT
+# ============================================================
+
+- test:
+    name: "TC29 - PUT user voi id sai datatype abc -> 400"
+    url: "/users/abc"
+    method: PUT
+    headers: {Content-Type: application/json}
+    body: '{"id": "abc", "name": "Invalid User", "username": "invalid", "email": "invalid@example.com"}'
+    expected_status: [400]
+
+
+# ============================================================
+# PATCH STILL RETURNS SUCCESS
+# ============================================================
+
+- test:
+    name: "TC30 - PATCH user khong ton tai id=9999 -> 404"
+    url: "/users/9999"
+    method: PATCH
+    headers: {Content-Type: application/json}
+    body: '{"name": "Patched User"}'
+    expected_status: [404]
